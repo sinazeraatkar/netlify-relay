@@ -3,20 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sina's Dev Environment</title>
+    <title>Sina Zeraatkar | Research API Node</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #333; text-align: center; padding-top: 100px; }
-        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-        h1 { color: #2563eb; font-size: 24px; }
-        p { color: #6b7280; line-height: 1.6; }
-        .status { margin-top: 20px; padding: 10px; background: #d1fae5; color: #065f46; border-radius: 6px; font-weight: bold; }
+        :root { --primary: #0369a1; --bg: #f8fafc; --text: #334155; --border: #e2e8f0; }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 0; }
+        .header { background: white; border-bottom: 1px solid var(--border); padding: 20px 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+        .badge { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 999px; font-size: 0.875rem; font-weight: 600; }
+        .hero { padding: 60px 0; border-bottom: 1px solid var(--border); }
+        h1 { font-size: 2.5rem; margin: 0 0 10px 0; color: #0f172a; }
+        .subtitle { font-size: 1.125rem; color: #64748b; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 40px; }
+        .card { background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card h3 { margin-top: 0; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.875em; color: #db2777; }
+        .footer { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 0.875rem; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Backend API Workspace</h1>
-        <p>This domain is used for testing my React and Node.js backend components. Please do not send unauthorized API requests here.</p>
-        <div class="status">● All systems operational</div>
-    </div>
+    <header class="header">
+        <div class="container nav">
+            <div class="logo">SZ_Research_Node</div>
+            <div class="badge">Production Environment</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Telecommunications API & Data Sync</h1>
+            <p class="subtitle">Institut Polytechnique de Paris • M1/PhD Track Infrastructure</p>
+            <p>This endpoint serves as the primary data relay for advanced wireless communication simulations, including 6G network topologies, Massive MIMO datasets, and antenna physics modeling. Access is strictly restricted to authorized academic IP addresses.</p>
+        </section>
+
+        <div class="grid">
+            <div class="card">
+                <h3><span class="status-dot"></span> Simulation Streams</h3>
+                <p>Live MATLAB CST Studio Suite spatial multiplexing telemetry and channel modeling data.</p>
+                <p><strong>Endpoint:</strong> <code>/api/v1/stream</code></p>
+            </div>
+            <div class="card">
+                <h3><span class="status-dot"></span> Hardware Metrics</h3>
+                <p>Aggregated logs from Debian/Ubuntu virtualization environments and Docker-containerized network services.</p>
+                <p><strong>Endpoint:</strong> <code>/api/v1/metrics</code></p>
+            </div>
+            <div class="card">
+                <h3><span class="status-dot"></span> BGP Security Logs</h3>
+                <p>Global routing security monitoring, RPKI validation feeds, and intercept traffic analysis.</p>
+                <p><strong>Endpoint:</strong> <code>/api/v1/bgp-monitor</code></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            &copy; 2026 Sina Zeraatkar | Télécom SudParis. All unauthorized payload injections are logged.
+        </div>
+    </footer>
 </body>
 </html>
