@@ -1,42 +1,83 @@
 const TARGET_BASE = (Netlify.env.get("TARGET_DOMAIN") || "").replace(/\/$/, "");
 const SECRET_PATH = "/sinazeraatkar";
 
+// Headers to strip to hide the proxy and prevent 404/403 errors
+const STRIP_HEADERS = new Set([
+  "host",
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "forwarded",
+  "x-forwarded-host",
+  "x-forwarded-proto",
+  "x-forwarded-port",
+  "x-real-ip",
+  "x-forwarded-for"
+]);
+
 export default async function handler(request, context) {
   const url = new URL(request.url);
 
-  // LOG 1: Check if it's hitting the decoy
+  // 1. DECOY SYSTEM: If not the secret path, show the index.html
   if (!url.pathname.startsWith(SECRET_PATH)) {
-      console.log("🟡 DECOY HIT: Someone visited", url.pathname);
-      return context.next(); 
+    return context.next(); 
   }
 
-  console.log("🔥 VPN TRAFFIC DETECTED FOR:", SECRET_PATH);
-  console.log("🎯 CURRENT TARGET_DOMAIN IS:", TARGET_BASE ? TARGET_BASE : "MISSING!");
-
   if (!TARGET_BASE) {
-      console.error("🚨 ERROR: TARGET_DOMAIN variable is empty!");
-      return new Response("Missing Target", { status: 500 });
+    return new Response("Not Found", { status: 404 });
   }
 
   try {
-    const targetUrl = TARGET_BASE + url.pathname + url.search;
-    console.log("➡️ ROUTING TRAFFIC TO:", targetUrl);
+    const targetUrl = new URL(TARGET_BASE);
+    const destination = TARGET_BASE + url.pathname + url.search;
+    
+    const headers = new Headers();
 
-    const headers = new Headers(request.headers);
+    // 2. HEADER CLEANING
+    for (const [key, value] of request.headers) {
+      const k = key.toLowerCase();
+      if (STRIP_HEADERS.has(k) || k.startsWith("x-nf-") || k.startsWith("x-netlify-")) continue;
+      headers.set(k, value);
+    }
+
+    // 3. THE 404 FIX: Set the Host header to match your backend domain
+    // This is why your server was returning 404; it didn't recognize the Netlify host.
+    headers.set("host", targetUrl.host);
+
+    // 4. OBFUSCATION: Mask User-Agent
+    headers.set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+
     const method = request.method;
-    const fetchOptions = { method, headers, redirect: "manual" };
-    if (method !== "GET" && method !== "HEAD") fetchOptions.body = request.body;
+    const fetchOptions = {
+      method,
+      headers,
+      redirect: "manual",
+    };
 
-    // The actual connection attempt
-    const upstream = await fetch(targetUrl, fetchOptions);
-    
-    console.log("✅ CONNECTION SUCCESS! Backend returned status:", upstream.status);
+    if (method !== "GET" && method !== "HEAD") {
+      fetchOptions.body = request.body;
+    }
 
-    return new Response(upstream.body, { status: upstream.status, headers: upstream.headers });
-    
+    const upstream = await fetch(destination, fetchOptions);
+
+    const responseHeaders = new Headers();
+    for (const [key, value] of upstream.headers) {
+      if (key.toLowerCase() === "transfer-encoding") continue;
+      responseHeaders.set(key, value);
+    }
+
+    return new Response(upstream.body, {
+      status: upstream.status,
+      headers: responseHeaders,
+    });
+
   } catch (error) {
-    // LOG 2: If the connection dies, tell us EXACTLY why
-    console.error("🚨 CRITICAL FETCH ERROR:", error.message);
-    return new Response("Relay Failed", { status: 502 });
+    // 5. SILENT ERROR: Standard 404 instead of proxy errors
+    return new Response("Not Found", { status: 404 });
   }
 }
